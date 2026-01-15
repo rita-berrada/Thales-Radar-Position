@@ -2,14 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-# Load data (skip header line)
-lats = np.loadtxt('latitudes.txt', skiprows=1)
-lons = np.loadtxt('longitudes.txt', skiprows=1)
+def load_terrain_npz(npz_path: str):
 
-# Load terrain data from .npz file
-terrain_data = np.load('terrain_mat.npz')
-# Get the first (and typically only) array from the .npz file
-terrain = terrain_data[list(terrain_data.keys())[0]]
+    d = np.load(npz_path)
+    lats = d["lat"].astype(float)
+    lons = d["lon"].astype(float)
+    Z = d["ter"].astype(float)
+
+    if Z.shape != (len(lats), len(lons)):
+        raise ValueError(f"Incohérence: Z{Z.shape} vs ({len(lats)}, {len(lons)})")
+
+    return lats, lons, Z
+
+# Load data from terrain_mat.npz
+lats, lons, terrain = load_terrain_npz('terrain_mat.npz')
 
 # Create meshgrid
 lon_grid, lat_grid = np.meshgrid(lons, lats)
